@@ -78,17 +78,9 @@ function hasItem(key: string) {
     return LOCAL__STORAGE.hasOwnProperty(key);
 }
 
-
-
-
-export const set = setItem;
-export const get = getItem;
-export const del = delItem;
-export const has = hasItem;
-
 export default {
-    set,
-    get,
-    del,
-    has
-};
+    set: setItem,
+    get: getItem,
+    del: delItem,
+    has: hasItem
+}
