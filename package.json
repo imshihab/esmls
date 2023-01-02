@@ -1,6 +1,6 @@
 {
 	"name": "esmls",
-	"version": "0.1.0",
+	"version": "0.1.2",
 	"description": "a simple library to use localStorage",
 	"type": "module",
 	"main": "lib/index.js",
