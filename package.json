@@ -1,0 +1,38 @@
+{
+	"name": "esmls",
+	"version": "0.1.0",
+	"description": "a simple library to use localStorage",
+	"type": "module",
+	"main": "lib/index.js",
+	"types": "lib/index.d.ts",
+	"files": [
+		"lib"
+	],
+	"scripts": {
+		"build": "tsc",
+		"prepare": "npm run build"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/imshihab/esmls.git"
+	},
+	"keywords": [
+		"ls",
+		"localStorage",
+		"local",
+		"storage"
+	],
+	"author": {
+		"name": "Saharia Shihab",
+		"url": "http://github.com/imshihab/",
+		"email": "imsahariashihab@gmail.com"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/imshihab/esmls/issues"
+	},
+	"homepage": "https://github.com/imshihab/esmls#readme",
+	"devDependencies": {
+		"typescript": "^4.9.4"
+	}
+}
