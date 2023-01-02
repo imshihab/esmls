@@ -1,4 +1,4 @@
-# useSpace
+# esmLS
 a simple library to use localStorage
 
 # Installation
