@@ -2,6 +2,10 @@
  * @type {Storage}
  */
 const LOCAL__STORAGE: Storage = window.localStorage;
+const observers: Record<string, (newValue: any) => void> = {};
+let isOverridden = false;
+let isStorageListenerAdded = false;
+
 /**
  * @param {any} data
  */
@@ -16,6 +20,7 @@ function type(data: any): string {
 function throwError(error: string) {
     throw new Error(error);
 }
+
 /**
  * @param {string} key
  */
@@ -38,6 +43,7 @@ function setItem(key: string, data: any): void {
         })
     );
 }
+
 /**
  * @param {string} key - get data from `LocalStorage`
  * @param {any} defitem - pass a default item if there is no item in `LocalStorage`
@@ -63,6 +69,7 @@ function getItem(key: string, defitem?: any): any {
         return ReadStorage.data ? ReadStorage.data : ReadStorage;
     }
 }
+
 /**
  * @param {string} key - delete item from `LocalStorage`
  */
@@ -70,6 +77,7 @@ function delItem(key: string) {
     isKey(key);
     LOCAL__STORAGE.removeItem(key);
 }
+
 /**
  * @param {string} key - if `LocalStorage` has the item you're looking for..
  */
@@ -78,14 +86,60 @@ function hasItem(key: string) {
     return LOCAL__STORAGE.hasOwnProperty(key);
 }
 
+/**
+ * Listen for changes to a localStorage key
+ * @param {string} key - Key to observe
+ * @param {(newValue: any) => void} callback - Callback when value changes
+ */
+function KeyonChange(key: string, callback: (newValue: any) => void) {
+    isKey(key);
+    observers[key] = callback;
+
+    if (!isOverridden) {
+        const originalSetItem = LOCAL__STORAGE.setItem.bind(LOCAL__STORAGE);
+        const originalRemoveItem =
+            LOCAL__STORAGE.removeItem.bind(LOCAL__STORAGE);
+
+        LOCAL__STORAGE.setItem = function (k: string, value: string) {
+            originalSetItem(k, value);
+            if (observers[k]) {
+                const parsedValue = getItem(k);
+                observers[k](parsedValue);
+            }
+        };
+
+        LOCAL__STORAGE.removeItem = function (k: string) {
+            originalRemoveItem(k);
+            if (observers[k]) {
+                observers[k](null);
+            }
+        };
+
+        isOverridden = true;
+    }
+
+    if (!isStorageListenerAdded) {
+        window.addEventListener("storage", (event: StorageEvent) => {
+            const changedKey = event.key;
+            if (changedKey && observers[changedKey]) {
+                const parsedValue = getItem(changedKey);
+                observers[changedKey](parsedValue);
+            }
+        });
+        isStorageListenerAdded = true;
+    }
+}
+
 export const set = setItem;
 export const get = getItem;
 export const del = delItem;
 export const has = hasItem;
+export const onChange = KeyonChange;
 
 export default {
     set,
     get,
     del,
-    has
+    has,
+    onChange,
 };
