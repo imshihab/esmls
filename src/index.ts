@@ -42,16 +42,17 @@ function setItem(key: string, data: any): void {
             data: data,
         })
     );
+    return data;
 }
 
 /**
  * @param {string} key - get data from `LocalStorage`
- * @param {any} defitem - pass a default item if there is no item in `LocalStorage`
+ * @param {any} defitem - Default value to set and return if key doesn't exist in `LocalStorage`
  */
 function getItem(key: string, defitem?: any): any {
     isKey(key);
     if (!hasItem(key)) {
-        return defitem ? defitem : null;
+        return defitem ? setItem(key, defitem) : null;
     }
     // @ts-ignore
     const ReadStorage = JSON.parse(LOCAL__STORAGE.getItem(key));
