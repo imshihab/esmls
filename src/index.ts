@@ -42,7 +42,6 @@ function setItem(key: string, data: any): void {
             data: data,
         })
     );
-    return data;
 }
 
 /**
@@ -52,7 +51,11 @@ function setItem(key: string, data: any): void {
 function getItem(key: string, defitem?: any): any {
     isKey(key);
     if (!hasItem(key)) {
-        return defitem ? setItem(key, defitem) : null;
+        if (arguments.length > 1) {
+            setItem(key, defitem);
+            return defitem;
+        }
+        return null;
     }
     // @ts-ignore
     const ReadStorage = JSON.parse(LOCAL__STORAGE.getItem(key));

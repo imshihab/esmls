@@ -32,6 +32,9 @@ if (!get("theme")) {
     set("theme", "light");
 }
 
+// or
+get("theme", "light")
+
 // Listen for theme changes
 onChange("theme", (newTheme) => {
     document.body.classList.toggle("dark-mode", newTheme === "dark");
