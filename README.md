@@ -46,3 +46,54 @@ document.getElementById("toggle-theme").addEventListener("click", () => {
     set("theme", currentTheme === "light" ? "dark" : "light");
 });
 ```
+
+### React Example
+```jsx
+import { useState, useEffect } from 'react';
+import { get, set, onChange } from 'esmls';
+
+function ThemeToggler() {
+    const [theme, setTheme] = useState(() => get('theme', 'light'));
+
+    useEffect(() => {
+        // Listen for theme changes from other tabs/windows
+        return onChange('theme', (newTheme) => {
+            setTheme(newTheme);
+        });
+    }, []);
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        set('theme', newTheme);
+    };
+
+    return (
+        <div className={`app ${theme}`}>
+            <button onClick={toggleTheme}>
+                Switch to {theme === 'light' ? 'Dark' : 'Light'} Mode
+            </button>
+            <p>Current theme: {theme}</p>
+        </div>
+    );
+}
+
+export default ThemeToggler;
+```
+
+Note: Remember to add your CSS styles for light and dark themes:
+```css
+.app {
+    padding: 1rem;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.app.light {
+    background-color: #ffffff;
+    color: #1f1f1f;
+}
+
+.app.dark {
+    background-color: #1f1f1f;
+    color: #ffffff;
+}
+```
