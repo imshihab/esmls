@@ -45,33 +45,58 @@ function setItem(key: string, data: any): void {
 }
 
 /**
- * @param {string} key - get data from `LocalStorage`
- * @param {any} defitem - Default value to set and return if key doesn't exist in `LocalStorage`
+ * Get data from `LocalStorage`
+ * @param {string} key - The key to retrieve from localStorage
+ * @param {Object} [options] - Optional configuration
+ * @param {any} [options.default] - Default value to return if key doesn't exist
+ * @param {boolean} [options.set] - If false, doesn't set the default value in storage
+ * @param {boolean} [options.withSetter] - If true, returns tuple of [value, setter]
+ * @returns {any | [any, (value: any) => void]} Single value or tuple with value and setter
  */
-function getItem(key: string, defitem?: any): any {
+function getItem(
+    key: string,
+    options?: {
+        default?: any;
+        set?: boolean;
+        withSetter?: boolean;
+    }
+): any | [any, (value: any) => void] {
     isKey(key);
-    if (!hasItem(key)) {
-        if (arguments.length > 1) {
-            setItem(key, defitem);
-            return defitem;
+
+    const getValue = () => {
+        if (!hasItem(key)) {
+            if (options?.default !== undefined) {
+                if (options?.set !== false) setItem(key, options.default);
+                return options.default;
+            }
+            return null;
         }
-        return null;
-    }
-    // @ts-ignore
-    const ReadStorage = JSON.parse(LOCAL__STORAGE.getItem(key));
-    if (ReadStorage.type === "String") {
-        return String(ReadStorage.data);
-    } else if (ReadStorage.type === "Number") {
-        return Number(ReadStorage.data);
-    } else if (ReadStorage.type === "BigInt") {
-        return BigInt(ReadStorage.data);
-    } else if (ReadStorage.type === "Boolean") {
-        return Boolean(ReadStorage.data);
-    } else if (ReadStorage.type === "Date") {
-        return new Date(ReadStorage.data);
-    } else {
-        return ReadStorage.data ? ReadStorage.data : ReadStorage;
-    }
+
+        // @ts-ignore
+        const ReadStorage = JSON.parse(LOCAL__STORAGE.getItem(key));
+        if (ReadStorage.type === "String") {
+            return String(ReadStorage.data);
+        } else if (ReadStorage.type === "Number") {
+            return Number(ReadStorage.data);
+        } else if (ReadStorage.type === "BigInt") {
+            return BigInt(ReadStorage.data);
+        } else if (ReadStorage.type === "Boolean") {
+            return Boolean(ReadStorage.data);
+        } else if (ReadStorage.type === "Date") {
+            return new Date(ReadStorage.data);
+        } else {
+            return ReadStorage.data ? ReadStorage.data : ReadStorage;
+        }
+    };
+    
+    const setValue = (value: any | ((prevValue: any) => any)) => {
+        const newValue =
+            typeof value === "function" ? value(getValue()) : value;
+        setItem(key, newValue);
+        return newValue;
+    };
+
+    return options?.withSetter ? [getValue(), setValue] : getValue();
 }
 
 /**
@@ -132,6 +157,11 @@ function KeyonChange(key: string, callback: (newValue: any) => void) {
         });
         isStorageListenerAdded = true;
     }
+
+    // Return cleanup function
+    return () => {
+        delete observers[key];
+    };
 }
 
 export const set = setItem;
